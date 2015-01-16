@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<glgps xmlns="http://www.glpals.com/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.glpals.com/ glconfig.xsd" >
+
+<hal
+    acPortName="/dev/ttyHS1"
+    lBaudRate="115200"
+    cLogEnabled="false"
+    acLogDirectory="/data/gps"
+    ltoFileName="lto.dat"
+    ctrlPipe="/data/gps/glgpsctrl"
+    gpioNStdbyPath="/sys/class/gpio/gpio49/value"
+
+    acSuplLogFullName="/data/gps/supllog.txt"
+    arp-supl-enable="true"
+    arp-supl-cap-msb="true"
+    arp-supl-cap-msa="true"
+    arp-supl-cap-ecid="false"
+    arp-supl-use-apn="false"
+    acSuplServer="supl.google.com"
+    SuplPort="7275"
+
+    LbsEnable="false"
+/>
+
+<gll
+    LogPriMask="LOG_DEBUG"
+    LogFacMask="LOG_GLLAPI | LOG_NMEA | LOG_RAWDATA"
+    FrqPlan="FRQ_PLAN_26MHZ_2PPM"
+    RfType="GL_RF_4752_BRCM_EXT_LNA"
+/>
+
+<job id="Factory_High_SNR">
+    <task id="test" repeat="1">
+           <startup
+                     ignore_osc="true"
+                     ignore_rom_alm="true"
+                     ignore_ram_alm="true"
+                     ignore_pos="true"
+                     ignore_nav="true"
+                     ignore_time="true"
+           />
+           <req_ftest
+                    GL_FACT_TEST_MODE="GL_FACT_TEST_CONT"
+                    GL_FACT_TEST_ITEMS="GL_FACT_TEST_WER"
+                    PRN="5"
+                    avg_int_sec="10"
+                    duration_sec="15"
+           />
+     </task>
+</job>
+</glgps>

@@ -1,0 +1,53 @@
+# Copyright (c) 2012-2013 NVIDIA Corporation.  All Rights Reserved.
+#
+# NVIDIA Corporation and its licensors retain all intellectual property and
+# proprietary rights in and to this software and related documentation.  Any
+# use, reproduction, disclosure or distribution of this software and related
+# documentation without an express license agreement from NVIDIA Corporation
+# is strictly prohibited.
+
+on init
+# rild properties
+    setprop rild.libargs "-e rmnet0 -e rmnet0:0 -e rmnet0:1"
+
+# fild properties
+    setprop modem.fild.args "-p /dev/ttyHS0 -s /dev/ttyACM0 -f /dev/ttyACM0 --scheme 0 --with-bt3 --hsic"
+
+# icera generic properties
+    setprop modem.power.device /sys/class/gpio/gpio139/value,0,1
+    setprop modem.power.usbdevice /sys/devices/platform/tegra_usb_modem_power/load_host,0,1
+    setprop ro.ril.devicename /dev/ttyACM1
+    setprop modem.powercontrol enabled
+    setprop ro.ril.wake_lock_timeout 200000
+    setprop ro.telephony.default_network 9
+
+on boot
+
+# BB remote file system
+    mkdir /data/rfs
+    mkdir /data/rfs/data
+    mkdir /data/rfs/data/modem
+    mkdir /data/rfs/data/debug
+    mkdir /data/rfs/data/remotes
+    chown radio system /data/rfs/data
+    chown radio system /data/rfs/data/modem
+    chown radio log /data/rfs/data/debug
+    symlink /system/vendor/firmware/data/config /data/rfs/data/config
+    symlink /system/vendor/firmware/app /data/rfs/app
+    symlink /mnt/modem/data/factory /data/rfs/data/factory
+    chmod 775 /data/rfs/data/debug
+
+# BB mapping symbolic name to the logging ttyACM port
+    symlink /dev/ttyACM3 /dev/log_modem
+
+# BB remote file system for EDP
+    symlink /sys /data/rfs/data/remotes/edp
+
+# GPIO BB access for user radio
+    chown radio system /sys/class/gpio/gpio139/value
+    chown radio system /sys/devices/platform/tegra_usb_modem_power/load_host
+
+# EDP access
+    chown radio system /sys/devices/platform/tegra_usb_modem_power/i_max
+    chown radio system /sys/devices/platform/tegra_usb_modem_power/request
+    chown radio system /sys/devices/platform/tegra_usb_modem_power/threshold

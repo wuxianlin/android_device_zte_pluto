@@ -1,0 +1,182 @@
+# Copyright (c) 2012 NVIDIA Corporation.  All Rights Reserved.
+#
+# NVIDIA Corporation and its licensors retain all intellectual property and
+# proprietary rights in and to this software and related documentation.  Any
+# use, reproduction, disclosure or distribution of this software and related
+# documentation without an express license agreement from NVIDIA Corporation
+# is strictly prohibited.
+
+on init
+
+    stop media
+    stop ril-daemon
+    setprop rild.libpath /system/lib/librenesas-ril.so
+
+    # set default network type to NETWORK_MODE_LTE_GSM_WCDMA
+    setprop ro.telephony.default_network 9
+
+    # disable modem-polling
+    setprop ro.ril.mp_pval 0
+    setprop ro.ril.mp_wval 0
+
+    write /sys/class/android_usb/android0/f_acm/instances 2
+    write /proc/sys/vm/min_free_kbytes 65536
+
+on post-fs-data
+
+# Modem Hosting Directories and Links
+    mkdir /data/mnt 0700 root root
+
+    # Mount Modem Firmware partition for modem boot-loader application
+    mkdir /data/mnt/modemfw 0700 root root
+    mount ext4 /dev/block/platform/sdhci-tegra.3/by-name/MFW /data/mnt/modemfw
+
+    # Mount Modem Log partition and Xfiles directory creation
+    mkdir /data/mnt/modemlog 0700 root root
+    mount ext4 /dev/block/platform/sdhci-tegra.3/by-name/MLO /data/mnt/modemlog
+
+    # Creates directory for XFiles
+    mkdir /data/mnt/modemlog/Xfiles 0700 root root
+    chown root root /data/mnt/modemlog/Xfiles
+    chmod 0700 /data/mnt/modemlog/Xfiles
+
+    # Creates directory for MH Crashlogs
+    mkdir /data/mnt/modemlog/MH_crashlog 0700 root root
+    chown root root /data/mnt/modemlog/MH_crashlog
+    chmod 0700 /data/mnt/modemlog/MH_crashlog/
+
+    # Creates directory for MH Errorlogs
+    mkdir /data/mnt/modemlog/MH_errorlog 0700 root root
+    chown root root /data/mnt/modemlog/MH_errorlog
+    chmod 0700 /data/mnt/modemlog/MH_errorlog
+
+    # Create Directory to store FSA
+    mkdir /data/mnt/modemfs 0700 root root
+    chown root root /data/mnt/modemfs
+    chmod 0700 /data/mnt/modemfs
+
+    # Mount Non-reflashable partition for MODEM-FSA (MODEMFSRO)
+    mkdir /data/mnt/modemfsro 0700 root root
+    chown root root /data/mnt/modemfsro
+    chmod 0700 /data/mnt/modemfsro
+    mount ext4 /dev/block/platform/sdhci-tegra.3/by-name/MRO /data/mnt/modemfsro nosuid
+
+    # Mount Re-flashable partition for MODEM-FSA (MODEMFSRW)
+    mkdir /data/mnt/modemfsrw 0700 root root
+    chown root root /data/mnt/modemfsrw
+    chmod 0700 /data/mnt/modemfsrw
+    mount ext4 /dev/block/platform/sdhci-tegra.3/by-name/MRW /data/mnt/modemfsrw nosuid
+
+    # Create Directory to store RIL trace
+    mkdir /data/radio 0777 radio radio
+    chmod 0777 /data/radio
+
+on boot
+
+#Save log file
+    copy /data/radio/trace.log /data/radio/trace_backup.log
+    chown radio radio /data/radio/trace_backup.log
+    chmod 644 /data/radio/trace_backup.log
+
+#Save UICCSTAT.TXT log file
+    copy /data/radio/UICCSTAT.TXT /data/radio/UICCSTAT_BACKUP.TXT
+    chown radio radio /data/radio/UICCSTAT_BACKUP.TXT
+    chmod 644 /data/radio/UICCSTAT_BACKUP.TXT
+
+# Increase socket recv size:
+    write /proc/sys/net/core/rmem_max 1048576
+    write /proc/sys/net/core/rmem_default 1048576
+
+on property:persist.service.ntrace.enable=1
+    start mtraced_on
+
+on property:persist.service.ntrace.enable=0
+    restart mtraced_off
+
+on property:sys.trace.control=*
+    setprop persist.sys.trace.control $sys.trace.control
+    restart mtraced_ctrl
+
+on property:sys.usb.config=acm
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0955
+    write /sys/class/android_usb/android0/idProduct 7104
+    write /sys/class/android_usb/android0/functions $sys.usb.config
+    write /sys/class/android_usb/android0/enable 1
+    start activateld
+    setprop sys.usb.state $sys.usb.config
+
+on property:sys.usb.config=acm,adb
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0955
+    write /sys/class/android_usb/android0/idProduct 7104
+    write /sys/class/android_usb/android0/functions $sys.usb.config
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    start activateld
+    setprop sys.usb.state $sys.usb.config
+
+service mtraced_on /data/mtraced ntrace
+    disabled
+    oneshot
+
+service mtraced_ctrl /data/mtraced control
+    disabled
+    oneshot
+
+service mtraced_off /data/mtraced stop
+    disabled
+    oneshot
+
+service tegra-rmc-init /system/bin/sh /system/etc/init.tegra_rmc.sh
+  class main
+  user root
+  group root
+  oneshot
+
+service modem-boot /system/bin/modem-boot
+  class main
+  socket rilboot dgram 666 root radio
+  user root
+  group root radio
+
+service renesas-sma /system/bin/renesas-sma
+  class main
+  user root
+  group root radio
+  #oneshot
+
+service ErrorHandler /system/bin/modem-errorhandler mhi0
+  class main
+  oneshot
+
+service modem-fsa /system/bin/modem-fsa mhi0
+  class main
+  oneshot
+
+service atparser /system/bin/atparser /dev/ttyGS1
+  class main
+  user root
+  disabled
+  oneshot
+
+service media-rmc /system/bin/mediaserver
+  class main
+  socket amhal_ril dgram 666 media media
+  user media
+  group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc
+  ioprio rt 4
+
+service ril-daemon-rmc /system/bin/rild
+  class main
+  socket rild stream 660 root radio
+  socket rild-debug stream 660 radio system
+  socket trace_ril stream 666 radio system
+  socket rilrmc dgram 660 radio radio
+  socket bootril dgram 666 radio radio
+  user root
+  group radio cache inet misc audio sdcard_rw log media
+
+service activateld /system/bin/activateld /dev/ttyGS1
+  class main
+  user root
