@@ -574,7 +574,14 @@ on property:wifi.commchip_id=7
     
     symlink /system/etc/libnfc-brcm-43341.conf /data/nfc/libnfc-brcm.conf
 
+service tegra_postfs /system/bin/sh /system/etc/init.tegra_pluto.post_fs.sh
+    user root
+    disabled
+    oneshot
+
 on post-fs
+    #permission for pppd
+    start tegra_postfs
     mkdir /data/var 0777 system system
     mkdir /data/var/run 0777 system system
     mkdir /data/var/lock 0777 system system

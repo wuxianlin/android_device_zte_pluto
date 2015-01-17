@@ -136,6 +136,11 @@ PRODUCT_COPY_FILES += \
     device/zte/pluto/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
     device/zte/pluto/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
+
+#misc
+PRODUCT_COPY_FILES += \
+    device/zte/pluto/misc/init.tegra_pluto.post_fs.sh:system/etc/init.tegra_pluto.post_fs.sh
+
 PRODUCT_PACKAGES += \
     libnetcmdiface
 
@@ -162,3 +167,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.sf.lcd_density=480 \
     ro.com.google.clientidbase=android-nvidia \
 
+#chat
+PRODUCT_PACKAGES += \
+    chat
