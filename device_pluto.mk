@@ -139,7 +139,8 @@ PRODUCT_COPY_FILES += \
 
 #misc
 PRODUCT_COPY_FILES += \
-    device/zte/pluto/misc/init.tegra_pluto.post_fs.sh:system/etc/init.tegra_pluto.post_fs.sh
+    device/zte/pluto/misc/init.tegra_pluto.post_fs.sh:system/etc/init.tegra_pluto.post_fs.sh \
+    device/zte/pluto/misc/libpowerservice.so:system/lib/libpowerservice.so
 
 PRODUCT_PACKAGES += \
     libnetcmdiface
