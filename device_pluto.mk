@@ -86,7 +86,7 @@ PRODUCT_COPY_FILES += \
 
 # Power
 PRODUCT_COPY_FILES += \
-    device/zte/pluto/power.tegra_pluto.rcc:system/etc/power.tegra_pluto.rc
+    device/zte/pluto/power.tegra_pluto.rc:system/etc/power.tegra_pluto.rc
 
 #PRODUCT_COPY_FILES += \
 #    $(call find-copy-subdir-files,*,$(LOCAL_PATH)/prebuilt/system,system)
