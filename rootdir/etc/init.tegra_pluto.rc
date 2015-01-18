@@ -28,7 +28,7 @@ on init
     mkdir /storage/usbdrive 0700 root root
 
     #export MEDIA_STORAGE /storage/sdcard0
-    export SECONDARY_STORAGE /storage/sdcard1
+    export SECONDARY_STORAGE /storage/sdcard1:/storage/usbdrive
     export EXTERNAL_STORAGE /storage/sdcard0
     #export EXTERNAL_STORAGE /storage/emulated/legacy
     #export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
@@ -45,12 +45,14 @@ on init
     symlink /storage/sdcard1 /mnt/sdcard1
 
     # create directory for mounting usb drives
-    mkdir /mnt/usbdrive 0666 system system
+    #mkdir /mnt/usbdrive 0666 system system
+    symlink /storage/usbdrive /mnt/usbdrive
     symlink /mnt/usbdrive /usbdrive
 
 on fs
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
+    setprop ro.crypto.fuse_sdcard true
 
     mount_all /fstab.tegra_pluto
 
@@ -416,7 +418,7 @@ service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1
     class late_start
     disabled
 
-service fuse_usbdisk /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdrive /storage/usbdrive
+service fuse_usbdrive /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdrive /storage/usbdrive
     class late_start
     disabled
 
@@ -456,8 +458,8 @@ service compass_daemon /system/bin/akmd8962 -m 7
 	
 # Mount usb drives as /usbdrive. Generally usb drives are formatted with FAT
 # filesystem, so we support FAT as of now.
-on device-added-/sys/block/sda
-  mount vfat /dev/block/sda /mnt/usbdrive
+#on device-added-/sys/block/sda
+#  mount vfat /dev/block/sda /mnt/usbdrive
 
 # Prepare TF service
 #import init.tf.rc
