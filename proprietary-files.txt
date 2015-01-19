@@ -1,5 +1,7 @@
 bin/akmd8962
+bin/amtbackup
 bin/atcmdsrv
+bin/backupVersionNum
 bin/btmacwriter
 bin/cluster
 bin/cluster_get.sh
@@ -8,6 +10,7 @@ bin/dcc
 bin/gsmmuxd
 bin/hotplug
 bin/input_cfboost_init.sh
+bin/mds
 bin/mount_debugfs.sh
 bin/nvcap_test
 bin/nvcpud
@@ -141,6 +144,7 @@ lib/libnvwinsys.so
 lib/libnvwsi.so
 lib/libopencv24_tegra.so
 lib/libpowerservice_client.so
+lib/libpowerservice.so
 lib/librm31080.so
 lib/librm_ts_service.so
 lib/libsensors.base.so
