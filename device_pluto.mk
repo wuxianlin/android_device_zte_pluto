@@ -64,8 +64,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
     frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
     frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
-    frameworks/base/nfc-extras/com.android.nfc_extras.xml:system/etc/permissions/com.android.nfc_extras.xml \
-    frameworks/native/data/etc/com.nxp.mifare.xml:system/etc/permissions/com.nxp.mifare.xml \
     frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
@@ -98,6 +96,10 @@ PRODUCT_COPY_FILES += \
 
 # Media config
 PRODUCT_COPY_FILES += \
+    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
+    frameworks/av/media/libstagefright/data/media_codecs_ffmpeg.xml:system/etc/media_codecs_ffmpeg.xml \
     device/zte/pluto/media/media_profiles.xml:system/etc/media_profiles.xml \
     device/zte/pluto/media/media_codecs.xml:system/etc/media_codecs.xml \
     device/zte/pluto/media/enctune.conf:system/etc/enctune.conf
@@ -144,17 +146,24 @@ PRODUCT_COPY_FILES += \
     device/zte/pluto/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf \
     device/zte/pluto/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf
 
+PRODUCT_PACKAGES += \
+    libwpa_client \
+    hostapd \
+    dhcpcd.conf \
+    wpa_supplicant \
+    wpa_supplicant.conf
 
 #misc
 PRODUCT_COPY_FILES += \
     device/zte/pluto/misc/init.tegra_pluto.post_fs.sh:system/etc/init.tegra_pluto.post_fs.sh
 
 PRODUCT_PACKAGES += \
-    libnetcmdiface
+    libnetcmdiface \
+    libwvm
 
 # Charger
 PRODUCT_PACKAGES += \
-    charger \
+#    charger \
     charger_res_images
 
 # Set default USB interface

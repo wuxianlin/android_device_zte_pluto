@@ -712,12 +712,11 @@ service chargerQuickboot /system/bin/chargerQuickboot
     disabled
 	oneshot
 
-service charger /charger
+service charger /sbin/healthd -c
     class charger
-    user root
-    group root
-    oneshot
-	
+    critical
+    seclabel u:r:healthd:s0
+
 # backup the software version that contain the external and internal version to the NV RAM
 service version /system/bin/backupVersionNum
     class core
